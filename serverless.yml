@@ -1,0 +1,25 @@
+
+service: learn-sls
+# app and org for use with dashboard.serverless.com
+app: learn-sls
+org: dctri211997
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  test:
+    handler: handler.test
+    events:
+      - http:
+          path: api/test
+          method: get
+          cors: true
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: api/hello
+          method: get
+          cors: true
