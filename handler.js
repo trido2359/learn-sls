@@ -11,7 +11,7 @@ module.exports.test = async event => {
 module.exports.hello = async event => {
   return {
     statusCode: 200,
-    body: 'Hello 97'
+    body: 'Hello 98'
   }
 
 };
