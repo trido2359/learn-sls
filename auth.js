@@ -34,7 +34,7 @@ const generatePolicy = (principalId, effect, resource) => {
 module.exports.authorize = (event, context, cb) => {
     if (event.authorizationToken) {
         // Remove 'bearer ' from token:
-        const token = event.authorizationToken;
+        const token = event.authorizationToken.substring(7);
         // Make a request to the iss + .well-known/jwks.json URL:
         axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
             response => {
