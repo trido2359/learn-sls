@@ -31,7 +31,7 @@ const generatePolicy = (principalId, effect, resource) => {
 };
 
 // Reusable Authorizer function, set on `authorizer` field in serverless.yml
-module.exports.authorize = (event, context, cb) => {
+module.exports.authorize = async (event, context, cb) => {
     if (event.authorizationToken) {
         console.log('Handle authorize');
         // Remove 'bearer ' from token:
