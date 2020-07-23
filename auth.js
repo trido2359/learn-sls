@@ -34,7 +34,7 @@ const generatePolicy = (principalId, effect, resource) => {
 module.exports.authorize = (event, context, cb) => {
     if (event.authorizationToken) {
         // Remove 'bearer ' from token:
-        const token = event.authorizationToken.substring(7);
+        const token = event.authorizationToken;
         // Make a request to the iss + .well-known/jwks.json URL:
         axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
             response => {
@@ -52,6 +52,7 @@ module.exports.authorize = (event, context, cb) => {
                 };
                 const pem = jwkToPem(jwkArray);
                 console.log('RUNNING1111');
+                console.log(token);
                 
                 // cb(
                 //     null,
@@ -62,10 +63,11 @@ module.exports.authorize = (event, context, cb) => {
                 jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
                     if (err) {
                         console.log('err parse token', err);
-                        return {
-                            statusCode: 400,
-                            body: 'Unauthorized'
-                        }
+                        cb('Unauthorized');
+                        // return {
+                        //     statusCode: 400,
+                        //     body: 'Unauthorized'
+                        // }
                     } else {
                         cb(null, generatePolicy(decoded.sub, 'Allow', []));
                         // return {
