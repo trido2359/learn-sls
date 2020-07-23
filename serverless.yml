@@ -16,10 +16,17 @@ functions:
           path: api/test
           method: get
           cors: true
+  auth:
+    handler: auth.authorize
   hello:
     handler: handler.hello
     events:
       - http:
           path: api/hello
           method: get
-          cors: true
+          cors:
+            origins:
+              - '*'
+            headers:
+              - Content-Type
+              - Authorization
