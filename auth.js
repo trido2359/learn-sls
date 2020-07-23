@@ -33,52 +33,48 @@ const generatePolicy = (principalId, effect, resource) => {
 // Reusable Authorizer function, set on `authorizer` field in serverless.yml
 module.exports.authorize = (event, context, cb) => {
     if (event.authorizationToken) {
+        console.log('Handle authorize');
         // Remove 'bearer ' from token:
         const token = event.authorizationToken.substring(7);
         // Make a request to the iss + .well-known/jwks.json URL:
-        axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
-            response => {
-                if (response.status !== 200) {
-                    console.log('response', response);
-                    cb('Unauthorized');
-                }
-                const keys = response.data;
-                // Based on the JSON of `jwks` create a Pem:
-                const k = keys.keys[0];
-                const jwkArray = {
-                    kty: k.kty,
-                    n: k.n,
-                    e: k.e
-                };
-                const pem = jwkToPem(jwkArray);
-                console.log('RUNNING');
-                console.log(response);
-                
-                
-                cb(
-                    null,
-                    'Test Pass authorize'
-                  );
+        const response = await axios({ url: `${ISS}/.well-known/jwks.json`, json: true });
+        if (response.status !== 200) {
+            console.log('response', response);
+            cb('Unauthorized');
+        }
+        const keys = response.data;
+        // Based on the JSON of `jwks` create a Pem:
+        const k = keys.keys[0];
+        const jwkArray = {
+            kty: k.kty,
+            n: k.n,
+            e: k.e
+        };
+        const pem = jwkToPem(jwkArray);
+        console.log('RUNNING');
+        
+        cb(
+            null,
+            'Test Pass authorize'
+          );
 
-                // Verify the token:
-                // jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
-                //     if (err) {
-                //         console.log('err parse token', err);
-                //         return {
-                //             statusCode: 400,
-                //             body: 'Unauthorized'
-                //         }
-                //     } else {
-                //         return {
-                //             statusCode: 200,
-                //             body: generatePolicy(decoded.sub, 'Allow', [])
-                //         }
-                //     }
-                // });
-            }
-        );
+        // Verify the token:
+        // jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
+        //     if (err) {
+        //         console.log('err parse token', err);
+        //         return {
+        //             statusCode: 400,
+        //             body: 'Unauthorized'
+        //         }
+        //     } else {
+        //         return {
+        //             statusCode: 200,
+        //             body: generatePolicy(decoded.sub, 'Allow', [])
+        //         }
+        //     }
+        // });
     } else {
         console.log('No authorizationToken found in the header.');
-        cb('Unauthorized1');
+        cb('Unauthorized');
     }
 };

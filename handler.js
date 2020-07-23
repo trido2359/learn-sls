@@ -9,8 +9,7 @@ module.exports.test = async event => {
 };
 
 module.exports.hello = async event => {
-  console.log('running Hello');
-  
+  console.log('running Hello functions');
   return {
     statusCode: 200,
     body: 'Hello'
