@@ -79,6 +79,6 @@ module.exports.authorize = (event, context, cb) => {
         );
     } else {
         console.log('No authorizationToken found in the header.');
-        cb('Unauthorized');
+        cb('Unauthorized1');
     }
 };

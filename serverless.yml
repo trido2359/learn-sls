@@ -15,7 +15,6 @@ functions:
       - http:
           path: api/test
           method: get
-          cors: true
   auth:
     handler: auth.authorize
   hello:
@@ -25,9 +24,3 @@ functions:
           path: api/hello
           method: get
           authorizer: auth
-          cors:
-            origins:
-              - '*'
-            headers:
-              - Content-Type
-              - Authorization
