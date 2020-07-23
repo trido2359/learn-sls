@@ -34,6 +34,8 @@ const generatePolicy = (principalId, effect, resource) => {
 module.exports.authorize = (event, context, cb) => {
     try {
         console.log('Auth function invoked');
+        console.log(event);
+        
         // Remove 'bearer ' from token:
         const token = event.authorizationToken.substring(7);
         // Make a request to the iss + .well-known/jwks.json URL:
@@ -52,9 +54,11 @@ module.exports.authorize = (event, context, cb) => {
 
                 // Verify the token:
                 jwk.verify(token, pem, { issuer: iss }, (err, decoded) => {
+                    console.log(decoded);
+                    
                     return {
                         statusCode: 200,
-                        body: generatePolicy(decoded.sub, 'Allow', event.methodArn)
+                        body: generatePolicy(decoded, 'Allow', event.methodArn)
                     }
                 });
             });
