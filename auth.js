@@ -40,10 +40,7 @@ module.exports.authorize = (event, context, cb) => {
             response => {
                 if (response.status !== 200) {
                     console.log('response', response);
-                    return {
-                        statusCode: 400,
-                        body: 'Unauthorized'
-                    }
+                    cb('Unauthorized');
                 }
                 const keys = response.data;
                 // Based on the JSON of `jwks` create a Pem:
@@ -56,10 +53,10 @@ module.exports.authorize = (event, context, cb) => {
                 const pem = jwkToPem(jwkArray);
                 console.log('RUNNING');
                 
-                return {
-                    statusCode: 200,
-                    body: ''
-                }
+                cb(
+                    null,
+                    'Test Pass authorize'
+                  );
 
                 // Verify the token:
                 // jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
@@ -80,10 +77,6 @@ module.exports.authorize = (event, context, cb) => {
         );
     } else {
         console.log('No authorizationToken found in the header.');
-        return {
-            statusCode: 400,
-            body: 'Unauthorized'
-        }
-
+        cb('Unauthorized');
     }
 };
