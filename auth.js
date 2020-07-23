@@ -58,7 +58,7 @@ module.exports.authorize = (event, context, cb) => {
                 
                 return {
                     statusCode: 200,
-                    body: generatePolicy(decoded.sub, 'Allow', [])
+                    body: ''
                 }
 
                 // Verify the token:
