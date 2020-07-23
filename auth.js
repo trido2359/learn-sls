@@ -36,7 +36,7 @@ module.exports.authorize = (event, context, cb) => {
         // Remove 'bearer ' from token:
         const token = event.authorizationToken.substring(7);
         // Make a request to the iss + .well-known/jwks.json URL:
-        const response = await axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
+        axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
             response => {
                 if (response.status !== 200) {
                     console.log('response', response);
