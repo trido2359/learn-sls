@@ -32,51 +32,38 @@ const generatePolicy = (principalId, effect, resource) => {
 
 // Reusable Authorizer function, set on `authorizer` field in serverless.yml
 module.exports.authorize = (event, context, cb) => {
-    console.log('Auth function invoked');
-    if (!event.authorizationToken) {
-        console.log('No authorizationToken found in the header.');
+    try {
+        console.log('Auth function invoked');
+        // Remove 'bearer ' from token:
+        const token = event.authorizationToken.substring(7);
+        // Make a request to the iss + .well-known/jwks.json URL:
+        request(
+            { url: `${iss}/.well-known/jwks.json`, json: true },
+            (error, response, body) => {
+                const keys = body;
+                // Based on the JSON of `jwks` create a Pem:
+                const k = keys.keys[0];
+                const jwkArray = {
+                    kty: k.kty,
+                    n: k.n,
+                    e: k.e,
+                };
+                const pem = jwkToPem(jwkArray);
+
+                // Verify the token:
+                jwk.verify(token, pem, { issuer: iss }, (err, decoded) => {
+                    return {
+                        statusCode: 200,
+                        body: generatePolicy(decoded.sub, 'Allow', event.methodArn)
+                    }
+                });
+            });
+    } catch (err) {
+        console.log('Err handled authen');
+        console.log(err);
         return {
             statusCode: 400,
             body: 'Unauthorized'
         }
     }
-    // Remove 'bearer ' from token:
-    const token = event.authorizationToken.substring(7);
-    // Make a request to the iss + .well-known/jwks.json URL:
-    request(
-        { url: `${iss}/.well-known/jwks.json`, json: true },
-        (error, response, body) => {
-            if (error || response.statusCode !== 200) {
-                console.log('Request error:', error);
-                return {
-                    statusCode: 400,
-                    body: 'Unauthorized'
-                }
-            }
-            const keys = body;
-            // Based on the JSON of `jwks` create a Pem:
-            const k = keys.keys[0];
-            const jwkArray = {
-                kty: k.kty,
-                n: k.n,
-                e: k.e,
-            };
-            const pem = jwkToPem(jwkArray);
-
-            // Verify the token:
-            jwk.verify(token, pem, { issuer: iss }, (err, decoded) => {
-                if (err) {
-                    console.log('Unauthorized user:', err.message);
-                    return {
-                        statusCode: 400,
-                        body: 'Unauthorized'
-                    }
-                } else {
-                    return {
-                        statusCode: 200,
-                        body: generatePolicy(decoded.sub, 'Allow', event.methodArn)
-                    }
-                }
-            });
-        });
 };
