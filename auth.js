@@ -37,40 +37,50 @@ module.exports.authorize = (event, context, cb) => {
         const token = event.authorizationToken.substring(7);
         // Make a request to the iss + .well-known/jwks.json URL:
         axios({ url: `${ISS}/.well-known/jwks.json`, json: true }).then(
-          response => {
-            if (response.status !== 200) {
-              console.log('response', response);
-              callback('Unauthorized');
+            response => {
+                if (response.status !== 200) {
+                    console.log('response', response);
+                    return {
+                        statusCode: 400,
+                        body: 'Unauthorized'
+                    }
+                }
+                const keys = response.data;
+                // Based on the JSON of `jwks` create a Pem:
+                const k = keys.keys[0];
+                const jwkArray = {
+                    kty: k.kty,
+                    n: k.n,
+                    e: k.e
+                };
+                const pem = jwkToPem(jwkArray);
+                console.log('PEM token');
+                console.log(token);
+                console.log(pem);
+
+                // Verify the token:
+                jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
+                    if (err) {
+                        console.log('err parse token', err);
+                        return {
+                            statusCode: 400,
+                            body: 'Unauthorized'
+                        }
+                    } else {
+                        return {
+                            statusCode: 200,
+                            body: generatePolicy(decoded.sub, 'Allow', [])
+                        }
+                    }
+                });
             }
-            const keys = response.data;
-            // Based on the JSON of `jwks` create a Pem:
-            const k = keys.keys[0];
-            const jwkArray = {
-              kty: k.kty,
-              n: k.n,
-              e: k.e
-            };
-            const pem = jwkToPem(jwkArray);
-            console.log('PEM token');
-            console.log(token);
-            console.log(pem);
-            
-            // Verify the token:
-            jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
-              if (err) {
-                console.log('err parse token', err);
-                callback('Unauthorized');
-              } else {
-                callback(
-                  null,
-                  generatePolicy(decoded.sub, 'Allow', [])
-                );
-              }
-            });
-          }
         );
-      } else {
+    } else {
         console.log('No authorizationToken found in the header.');
-        callback('Unauthorized');
-      }
+        return {
+            statusCode: 400,
+            body: 'Unauthorized'
+        }
+
+    }
 };
