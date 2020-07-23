@@ -53,26 +53,27 @@ module.exports.authorize = (event, context, cb) => {
                 const pem = jwkToPem(jwkArray);
                 console.log('RUNNING1111');
                 
-                cb(
-                    null,
-                    'Test Pass authorize'
-                  );
+                // cb(
+                //     null,
+                //     'Test Pass authorize'
+                //   );
 
                 // Verify the token:
-                // jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
-                //     if (err) {
-                //         console.log('err parse token', err);
-                //         return {
-                //             statusCode: 400,
-                //             body: 'Unauthorized'
-                //         }
-                //     } else {
-                //         return {
-                //             statusCode: 200,
-                //             body: generatePolicy(decoded.sub, 'Allow', [])
-                //         }
-                //     }
-                // });
+                jwk.verify(token, pem, { issuer: ISS }, (err, decoded) => {
+                    if (err) {
+                        console.log('err parse token', err);
+                        return {
+                            statusCode: 400,
+                            body: 'Unauthorized'
+                        }
+                    } else {
+                        cb(null, generatePolicy(decoded.sub, 'Allow', []));
+                        // return {
+                        //     statusCode: 200,
+                        //     body: generatePolicy(decoded.sub, 'Allow', [])
+                        // }
+                    }
+                });
             }
         );
     } else {
