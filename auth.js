@@ -52,6 +52,8 @@ module.exports.authorize = (event, context, cb) => {
                 };
                 const pem = jwkToPem(jwkArray);
                 console.log('RUNNING');
+                console.log(response);
+                
                 
                 cb(
                     null,
