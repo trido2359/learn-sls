@@ -21,6 +21,6 @@ module.exports.test = async event => {
 module.exports.hello =  (event, context, callback) => {
     return {
         statusCode: 200,
-        body: 'Hello'
+        body: 'Hello 123'
     };
 };
