@@ -1,10 +1,5 @@
 'use strict';
 
-const jwt = require('jsonwebtoken');
-const jwkToPem = require('jwk-to-pem');
-const axios = require('axios');
-const request = require('request')
-
 // For Auth0:       https://<project>.auth0.com/
 // refer to:        http://bit.ly/2hoeRXk
 // For AWS Cognito: https://cognito-idp.<region>.amazonaws.com/<user pool id>
