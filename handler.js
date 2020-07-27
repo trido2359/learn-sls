@@ -10,7 +10,7 @@ const token = 'eyJraWQiOiJvZTRqQThsL2hGQW1YOE0yai9ySldhTTcwVDNPSm5VV1E1bnNTZUJ3O
 
 
 
-module.exports.test = event => {
+module.exports.test = async event => {
     return {
         statusCode: 200,
         body: 'Test'
