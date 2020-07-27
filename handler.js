@@ -19,18 +19,8 @@ module.exports.test = async event => {
 };
 
 module.exports.hello =  (event, context, callback) => {
-    try {
-        console.log('RUNNINGGGG');
-        
-        return {
-            statusCode: 200,
-            body: 'Hello 123'
-        };
-    } catch(err) {
-        console.log('ERRORORORO');
-        return {
-            statusCode: 400,
-            body: 'Hello Error'
-        };
-    }
+    return {
+        statusCode: 200,
+        body: 'Hello 123'
+    };
 };
