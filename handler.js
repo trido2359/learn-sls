@@ -19,8 +19,15 @@ module.exports.test = async event => {
 };
 
 module.exports.hello =  async event => {
-    return {
-        statusCode: 200,
-        body: 'Hello 123'
-    };
+    try {
+        return {
+            statusCode: 200,
+            body: 'Hello 123'
+        };
+    } catch (err) {
+        return {
+            statusCode: 500,
+            body: 'Hello Err'
+        };
+    }
 };
