@@ -18,7 +18,7 @@ module.exports.test = async event => {
 
 };
 
-module.exports.hello =  (event, context, callback) => {
+module.exports.hello =  async event => {
     return {
         statusCode: 200,
         body: 'Hello 123'
