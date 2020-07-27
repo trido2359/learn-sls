@@ -15,9 +15,12 @@ functions:
       - http:
           path: api/test
           method: get
+  auth:
+    handler: auth.authorize
   hello:
     handler: handler.hello
     events:
       - http:
           path: api/hello
           method: get
+          authorizer: auth
