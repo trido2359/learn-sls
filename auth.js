@@ -1,6 +1,6 @@
 
 module.exports.authorize =  (event, context, cb ) => {
-    const check = true;
+    const check = false;
     console.log('authorize');
     
     if (check) {
