@@ -13,13 +13,15 @@ const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
 module.exports.register = async (event, conext, cb) => {
     try {
-        console.log('Register');
+        console.log('Register11');
         const { email, password } = event.body;
 
         const attributeList = [];
 
         attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({ Name: "email", Value: email }));
         userPool.signUp(email, password, attributeList, null, function (err, result) {
+            console.log('into register');
+            
             if (err) {
                 console.log('err', err);
                 return {
