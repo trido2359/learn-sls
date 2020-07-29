@@ -15,7 +15,8 @@ module.exports.register = async (event, conext, cb) => {
     context.callbackWaitsForEmptyEventLoop = false;
     try {
         console.log('Register11');
-        const { email, password } = event.body;
+        const { body } = event;
+        const { email, password } = JSON.parse(body);
 
         const attributeList = [];
 
@@ -66,7 +67,8 @@ module.exports.register = async (event, conext, cb) => {
 module.exports.verifyAccount = async (event, conext, cb) => {
     try {
         console.log('verifyAccount');
-        const { email, code } = event.body;
+        const { body } = event;
+        const { email } = JSON.parse(body);
         const userData = {
             Username: email,
             Pool: userPool
@@ -99,7 +101,8 @@ module.exports.verifyAccount = async (event, conext, cb) => {
 
 module.exports.login = async (event, conext, cb) => {
     try {
-        const { email, password } = event.body;
+        const { body } = event;
+        const { email, password } = JSON.parse(body);
         const authenticationData = {
             Username: email,
             Password: password,
