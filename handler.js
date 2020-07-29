@@ -17,6 +17,8 @@ module.exports.register = async (event, context, cb) => {
         console.log('Register11');
         const { body } = event;
         const { email, password } = JSON.parse(body);
+        console.log(email + '-' + password);
+        
 
         const attributeList = [];
 
@@ -26,14 +28,7 @@ module.exports.register = async (event, context, cb) => {
             
             if (err) {
                 console.log('err', err);
-                cb(null, {
-                    statusCode: 200,
-                    headers: {
-                      'Access-Control-Allow-Origin': '*',
-                      'Content-Type': 'application/json'
-                    },
-                    body: err.message
-                  });
+                cb(err.message);
             }
 
             cb(null, {
@@ -51,16 +46,7 @@ module.exports.register = async (event, context, cb) => {
     } catch (err) {
         console.log('err register', err);
 
-        cb(null, {
-            statusCode: 200,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              data: err.message
-            })
-          });
+        cb(err.message);
     }
 };
 
