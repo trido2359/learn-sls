@@ -5,10 +5,10 @@
     "license": "MIT",
     "author": "Tri Do",
     "dependencies": {
-        "axios": "^0.19.2",
+        "amazon-cognito-identity-js": "^4.3.3",
         "jsonwebtoken": "^7.1.9",
         "jwk-to-pem": "^1.2.6",
-        "mongoose": "^5.9.25",
+        "node-fetch": "^2.6.0",
         "request": "^2.82.0"
     },
     "scripts": {
