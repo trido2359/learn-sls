@@ -14,7 +14,7 @@ const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 module.exports.register = async (event, conext, cb) => {
     try {
         console.log('Register');
-        const { email, password } = event;
+        const { email, password } = event.body;
 
         const attributeList = [];
 
@@ -47,7 +47,7 @@ module.exports.register = async (event, conext, cb) => {
 module.exports.verifyAccount = async (event, conext, cb) => {
     try {
         console.log('verifyAccount');
-        const { email, code } = event;
+        const { email, code } = event.body;
         const userData = {
             Username: email,
             Pool: userPool
@@ -80,7 +80,7 @@ module.exports.verifyAccount = async (event, conext, cb) => {
 
 module.exports.login = async (event, conext, cb) => {
     try {
-        const { email, password } = event;
+        const { email, password } = event.body;
         const authenticationData = {
             Username: email,
             Password: password,
