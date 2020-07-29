@@ -14,7 +14,7 @@ functions:
     events:
       - http:
           path: api/test
-          method: get
+          method: GET
   auth:
     handler: auth.authorize
   hello:
@@ -22,5 +22,5 @@ functions:
     events:
       - http:
           path: api/hello
-          method: get
+          method: GET
           authorizer: auth
