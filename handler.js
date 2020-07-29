@@ -12,6 +12,7 @@ const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
 
 module.exports.register = async (event, conext, cb) => {
+    context.callbackWaitsForEmptyEventLoop = false;
     try {
         console.log('Register11');
         const { email, password } = event.body;
@@ -24,25 +25,41 @@ module.exports.register = async (event, conext, cb) => {
             
             if (err) {
                 console.log('err', err);
-                return {
-                    statusCode: 400,
-                    body: 'Bad Request'
-                };
+                cb(null, {
+                    statusCode: 200,
+                    headers: {
+                      'Access-Control-Allow-Origin': '*',
+                      'Content-Type': 'application/json'
+                    },
+                    body: err.message
+                  });
             }
 
-            return {
+            cb(null, {
                 statusCode: 200,
-                body: 'Register successfully'
-            };
+                headers: {
+                  'Access-Control-Allow-Origin': '*',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  data: 'done'
+                })
+              });
 
         })
     } catch (err) {
         console.log('err register', err);
 
-        return {
-            statusCode: 500,
-            body: 'Server Err'
-        };
+        cb(null, {
+            statusCode: 200,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              data: err.message
+            })
+          });
     }
 };
 
