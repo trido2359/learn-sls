@@ -9,12 +9,24 @@ provider:
   runtime: nodejs12.x
 
 functions:
-  test:
-    handler: handler.test
+  register:
+    handler: handler.register
     events:
       - http:
-          path: api/test
-          method: GET
+          path: api/register
+          method: POST
+  verifyAccount:
+    handler: handler.verifyAccount
+    events:
+      - http:
+          path: api/verifyAccount
+          method: POST
+  session:
+    handler: handler.login
+    events:
+      - http:
+          path: api/session
+          method: POST
   auth:
     handler: auth.authorize
   hello:
