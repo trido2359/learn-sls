@@ -12,7 +12,7 @@ module.exports.authorize = async (event, context, cb) => {
                 {
                     "Action": "execute-api:Invoke",
                     "Effect": "Allow",
-                    "Resource": ''
+                    "Resource": 'arn:aws:lambda:ap-southeast-1:890191265537:function:learn-sls-qa-hello'
                 }
             ]
         }
