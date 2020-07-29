@@ -18,18 +18,11 @@ module.exports.test = async (event, conext, cb) => {
     };
 };
 
-module.exports.hello = (event, context, cb) => {
+module.exports.hello = async (event, context, cb) => {
     console.log('hello'); 
     console.log(event);
-    try {
-        return {
-            statusCode: 200,
-            body: 'Hello 123'
-        };
-    } catch (err) {
-        return {
-            statusCode: 500,
-            body: 'Hello Err'
-        };
-    }
+    return {
+        statusCode: 200,
+        body: 'Hello 123'
+    };
 };
