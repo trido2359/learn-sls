@@ -11,7 +11,7 @@ const ISS = `https://cognito-idp.${pool_region}.amazonaws.com/${poolData.UserPoo
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
 
-module.exports.register = async (event, conext, cb) => {
+module.exports.register = async (event, context, cb) => {
     context.callbackWaitsForEmptyEventLoop = false;
     try {
         console.log('Register11');
@@ -64,7 +64,7 @@ module.exports.register = async (event, conext, cb) => {
     }
 };
 
-module.exports.verifyAccount = async (event, conext, cb) => {
+module.exports.verifyAccount = async (event, context, cb) => {
     try {
         console.log('verifyAccount');
         const { body } = event;
@@ -99,7 +99,7 @@ module.exports.verifyAccount = async (event, conext, cb) => {
 };
 
 
-module.exports.login = async (event, conext, cb) => {
+module.exports.login = async (event, context, cb) => {
     try {
         const { body } = event;
         const { email, password } = JSON.parse(body);
