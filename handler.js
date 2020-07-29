@@ -10,17 +10,15 @@ const token = 'eyJraWQiOiJvZTRqQThsL2hGQW1YOE0yai9ySldhTTcwVDNPSm5VV1E1bnNTZUJ3O
 
 
 
-module.exports.test = async event => {
+module.exports.test = async (event, conext, cb) => {
     console.log('Test111');
-    
     return {
         statusCode: 200,
-        body: 'Test'
+        body: 'Test 123'
     };
-
 };
 
-module.exports.hello =  async event => {
+module.exports.hello = (event, context, cb) => {
     console.log('hello'); 
     console.log(event);
     try {
