@@ -30,7 +30,7 @@ function registerAccount(email, password) {
     })
 }
 
-module.exports.register = async (event, context, cb) => {
+module.exports.register = async (event, context) => {
     try {
         console.log('Process Register11');
         const { body } = event;
@@ -50,7 +50,7 @@ module.exports.register = async (event, context, cb) => {
 
         return {
             statusCode: 200,
-            body: result.body
+            body: 'register done'
         }
         
 
@@ -88,7 +88,7 @@ function confirmRegistration(email, code) {
 }
 
 
-module.exports.verifyAccount = async (event, context, cb) => {
+module.exports.verifyAccount = async (event, context) => {
     try {
         console.log('verifyAccount');
         const { body } = event;
@@ -158,7 +158,7 @@ function loginAccount(email, password) {
 
 }
 
-module.exports.login = async (event, context, cb) => {
+module.exports.login = async (event, context) => {
     try {
         const { body } = event;
         const { email, password } = JSON.parse(body);
@@ -185,7 +185,7 @@ module.exports.login = async (event, context, cb) => {
     }
 };
 
-module.exports.hello = async (event, context, cb) => {
+module.exports.hello = async (event, context) => {
     try {
         console.log('hello');
         return {
