@@ -10,73 +10,108 @@ const pool_region = "ap-southeast-1";
 const ISS = `https://cognito-idp.${pool_region}.amazonaws.com/${poolData.UserPoolId}`;
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
+function registerAccount(email, password) {
+    const attributeList = [];
+
+    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({ Name: "email", Value: email }));
+    return new Promise((resolve, reject) => {
+        userPool.signUp(email, password, attributeList, null, function (err, result) {
+            if (err) {
+                resolve({
+                    status: 0,
+                    body: err.message
+                })
+            }
+            resolve({
+                status: 1,
+                body: result
+            });
+        })
+    })
+}
 
 module.exports.register = async (event, context, cb) => {
-    context.callbackWaitsForEmptyEventLoop = false;
+    // context.callbackWaitsForEmptyEventLoop = false;
     try {
         console.log('Process Register11');
-        const { body } = event;
-        const { email, password } = JSON.parse(body);
+        // const { body } = event;
+        // const { email, password } = JSON.parse(body);
+        const email = 'trido9@yopmail.com';
+        const password = 'Test12345^';
 
         console.log(email + '-' + password);
+
+        const result = await registerAccount(email, password);
+        console.log(result);
+
+        if(!result.status) {
+            return {
+                statusCode: 400,
+                body: result.body
+            }
+        }
+
+        return {
+            statusCode: 200,
+            body: result.body
+        }
         
 
-        const attributeList = [];
-
-        attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({ Name: "email", Value: email }));
-        userPool.signUp(email, password, attributeList, null, function (err, result) {
-            console.log('into register');
-            
-            if (err) {
-                console.log('err', err);
-                return {
-                    statusCode: 400,
-                    body: err.message
-                };
-            }
-            console.log('register done');
-            
-            return {
-                statusCode: 200,
-                body: 'register done'
-            };
-
-        })
     } catch (err) {
         console.log('err register', err);
 
         return {
             statusCode: 500,
-            body: err.message
-        };
+            body: 'register error'
+        }
     }
 };
+
+function confirmRegistration(email, code) {
+    const userData = {
+        Username: email,
+        Pool: userPool
+    };
+
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+    return new Promise((resolve, reject) => {
+        cognitoUser.confirmRegistration(code, true, function (err, result) {
+            if (err) {
+                resolve({
+                    status: 0,
+                    body: err.message
+                })
+            }
+            resolve({
+                status: 1,
+                body: result
+            });
+        });
+    })
+}
+
 
 module.exports.verifyAccount = async (event, context, cb) => {
     try {
         console.log('verifyAccount');
         const { body } = event;
-        const { email } = JSON.parse(body);
-        const userData = {
-            Username: email,
-            Pool: userPool
-        };
+        const { email, code } = JSON.parse(body);
 
-        const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        cognitoUser.confirmRegistration(code, true, function (err, result) {
-            if (err) {
-                console.log(err.message || JSON.stringify(err));
-                return {
-                    statusCode: 400,
-                    body: err.message 
-                };
-            }
-            console.log('call result: ' + result);
+        const result = await registerAccount(email, code);
+        console.log(result);
+
+        if(!result.status) {
             return {
-                statusCode: 200,
-                body: 'done' 
-            };
-        });
+                statusCode: 400,
+                body: result.body
+            }
+        }
+
+        return {
+            statusCode: 200,
+            body: result.body
+        }
+      
     } catch (err) {
         console.log('err verify');
         return {
@@ -86,47 +121,64 @@ module.exports.verifyAccount = async (event, context, cb) => {
     }
 };
 
+function loginAccount(email, password) {
+    const authenticationData = {
+        Username: email,
+        Password: password,
+    };
+    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
+        authenticationData
+    );
+
+    const userData = {
+        Username: email,
+        Pool: userPool
+    };
+
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                const accessToken = result.getAccessToken().getJwtToken();
+
+                resolve({
+                    status: 1,
+                    body: accessToken
+                })
+    
+            },
+    
+            onFailure: function (err) {
+                console.log(err.message || JSON.stringify(err));
+                resolve({
+                    status: 0,
+                    body: err.message
+                })
+            },
+        });
+    })
+
+}
 
 module.exports.login = async (event, context, cb) => {
     try {
         const { body } = event;
         const { email, password } = JSON.parse(body);
-        const authenticationData = {
-            Username: email,
-            Password: password,
-        };
-        const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
-            authenticationData
-        );
+        const result = await loginAccount(email, password);
+        console.log(result);
 
-        const userData = {
-            Username: email,
-            Pool: userPool
-        };
+        if(!result.status) {
+            return {
+                statusCode: 400,
+                body: result.body
+            }
+        }
 
-        const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        cognitoUser.authenticateUser(authenticationDetails, {
-            onSuccess: function (result) {
-                const accessToken = result.getAccessToken().getJwtToken();
-                console.log('access token :' + accessToken);
-                //console.log('id token :' + result.getIdToken().getJwtToken());
-                // console.log('refresh token :' + result.getRefreshToken().getToken());
-
-                return {
-                    statusCode: 200,
-                    body: accessToken
-                };
-
-            },
-
-            onFailure: function (err) {
-                console.log(err.message || JSON.stringify(err));
-                return {
-                    statusCode: 200,
-                    body: err.message
-                };
-            },
-        });
+        return {
+            statusCode: 200,
+            body: result.body
+        }
     } catch (err) {
         console.log('err login', err);
         return {
@@ -137,10 +189,17 @@ module.exports.login = async (event, context, cb) => {
 };
 
 module.exports.hello = async (event, context, cb) => {
-    console.log('hello');
-    console.log(event);
-    return {
-        statusCode: 200,
-        body: 'Hello 123'
-    };
+    try {
+        console.log('hello');
+        return {
+            statusCode: 200,
+            body: 'Hello 123'
+        };
+    } catch (err) {
+        console.log('err hello', err);
+        return {
+            statusCode: 500,
+            body: err.message
+        };
+    }
 };
