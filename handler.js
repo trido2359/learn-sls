@@ -31,13 +31,10 @@ function registerAccount(email, password) {
 }
 
 module.exports.register = async (event, context, cb) => {
-    // context.callbackWaitsForEmptyEventLoop = false;
     try {
         console.log('Process Register11');
-        // const { body } = event;
-        // const { email, password } = JSON.parse(body);
-        const email = 'trido9@yopmail.com';
-        const password = 'Test12345^';
+        const { body } = event;
+        const { email, password } = JSON.parse(body);
 
         console.log(email + '-' + password);
 
@@ -97,7 +94,7 @@ module.exports.verifyAccount = async (event, context, cb) => {
         const { body } = event;
         const { email, code } = JSON.parse(body);
 
-        const result = await registerAccount(email, code);
+        const result = await confirmRegistration(email, code);
         console.log(result);
 
         if(!result.status) {
