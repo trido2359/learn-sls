@@ -1,5 +1,9 @@
 'use strict';
 global.fetch = require('node-fetch');
+const { v4: uuidv4 } = require('uuid');
+const { handler } = require("./libs/handler-lib");
+const { dbState } = require("./libs/dynamodb-lib");
+
 global.navigator = () => null;
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const poolData = {
@@ -200,3 +204,33 @@ module.exports.hello = async (event, context) => {
         };
     }
 };
+
+
+module.exports.create = handler(async (event, context) => {
+    const data = JSON.parse(event.body);
+    const params = {
+      TableName: process.env.tableName,
+      // 'Item' contains the attributes of the item to be created
+      // - 'userId': user identities are federated through the
+      //             Cognito Identity Pool, we will use the identity id
+      //             as the user id of the authenticated user
+      // - 'noteId': a unique uuid
+      // - 'content': parsed from request body
+      // - 'attachment': parsed from request body
+      // - 'createdAt': current Unix timestamp
+      Item: {
+        userId: event.requestContext.identity.cognitoIdentityId,
+        noteId: uuidv4(),
+        content: data.content,
+        attachment: data.attachment,
+        createdAt: Date.now()
+      }
+    };
+
+    console.log(params);
+    
+  
+    await dbState.put(params);
+  
+    return params.Item;
+  });

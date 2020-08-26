@@ -6,12 +6,19 @@
     "author": "Tri Do",
     "dependencies": {
         "amazon-cognito-identity-js": "^4.3.3",
+        "aws-sdk": "^2.739.0",
         "jsonwebtoken": "^7.1.9",
         "jwk-to-pem": "^1.2.6",
         "node-fetch": "^2.6.0",
-        "request": "^2.82.0"
+        "request": "^2.82.0",
+        "uuid": "^8.3.0"
     },
     "scripts": {
         "deploy": "sls deploy"
+    },
+    "devDependencies": {
+        "serverless-bundle": "^3.0.0",
+        "serverless-dotenv-plugin": "^3.0.0",
+        "serverless-offline": "^6.5.0"
     }
 }

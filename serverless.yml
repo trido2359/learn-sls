@@ -1,5 +1,18 @@
 
 service: learn-sls
+
+# Create an optimized package for our functions
+package:
+  individually: true
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin # Load .env as environment variables
+
+custom:
+  bundle:
+    option:
+      fix: true
 # app and org for use with dashboard.serverless.com
 app: learn-sls
 org: dctri211997
@@ -7,6 +20,25 @@ org: dctri211997
 provider:
   name: aws
   runtime: nodejs12.x
+  stage: dev
+  region: ap-southeast-1
+  # These environment variables are made available to our functions
+  # under process.env.
+  environment:
+    tableName: notes
+  # 'iamRoleStatements' defines the permission policy for the Lambda function.
+  # In this case Lambda functions are granted with permissions to access DynamoDB.
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:ap-southeast-1:890191265537:table/notes"
 
 functions:
   register:
@@ -36,3 +68,11 @@ functions:
           path: api/hello
           method: GET
           authorizer: auth
+  create:
+    handler: handler.create
+    events:
+      - http:
+          path: notes
+          method: post
+          cors: true
+          authorizer: aws_iam
