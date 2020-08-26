@@ -20,7 +20,7 @@ org: dctri211997
 provider:
   name: aws
   runtime: nodejs12.x
-  stage: dev
+  stage: qa
   region: ap-southeast-1
   # These environment variables are made available to our functions
   # under process.env.
