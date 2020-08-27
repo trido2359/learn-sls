@@ -38,7 +38,7 @@ describe('Test gremlin', () => {
         expect(user.value).not.toBeNull();
     })
 
-    it('Add vertex(users) and edge(userHasAccountType)', async () => {
+    it('Add associated vertex(users) path userHasAccountType', async () => {
         const newEmail = generateFakeEmail();
         const nameEdge = 'userHasAccountType';
         // add vertex
