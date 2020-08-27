@@ -14,9 +14,11 @@
         "uuid": "^8.3.0"
     },
     "scripts": {
-        "deploy": "sls deploy"
+        "deploy": "sls deploy",
+        "test": "jest"
     },
     "devDependencies": {
+        "jest": "^26.4.2",
         "serverless-bundle": "^3.0.0",
         "serverless-dotenv-plugin": "^3.0.0",
         "serverless-offline": "^6.5.0"

@@ -21,6 +21,7 @@ const generatePolicy = (principalId, effect, resource) => {
 module.exports.authorize = async (event, context, cb) => {
     console.log('authorize11');
     const token = event.authorizationToken.substring(7);
+    
     if (!token) {
       return {
         statusCode: 400,

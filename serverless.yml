@@ -10,9 +10,9 @@ plugins:
   - serverless-dotenv-plugin # Load .env as environment variables
 
 custom:
-  bundle:
-    option:
-      fix: true
+  myStage: ${opt:stage, self:provider.stage}
+  myProfile:
+    qa: dctri
 # app and org for use with dashboard.serverless.com
 app: learn-sls
 org: dctri211997
@@ -22,6 +22,7 @@ provider:
   runtime: nodejs12.x
   stage: qa
   region: ap-southeast-1
+  profile: ${self:custom.myProfile.${self:custom.myStage}}
   # These environment variables are made available to our functions
   # under process.env.
   environment:
@@ -74,5 +75,16 @@ functions:
       - http:
           path: notes
           method: post
+          cors: true
+          authorizer: aws_iam
+  get:
+    # Defines an HTTP API endpoint that calls the main function in get.js
+    # - path: url path is /notes/{id}
+    # - method: GET request
+    handler: handler.get
+    events:
+      - http:
+          path: notes/{id}
+          method: get
           cors: true
           authorizer: aws_iam
