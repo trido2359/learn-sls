@@ -4,7 +4,8 @@ const {
     getUserByEmail,
     getListRoles,
     addVertextRole,
-    getRoleByRole
+    getRoleByRole,
+    addUserToRole
 } = require('./repository');
 const { getConnect } = require('./connectDb')
 const gremlin = require('gremlin');
@@ -14,107 +15,128 @@ const { properties } = gremlin.process.statics;
 describe('Test gremlin', () => {
     const { gNeptune, gTinkerPop } = getConnect();
 
-    it('Add vertex users ', async () => {
-        const newEmail = generateFakeEmail();
-        const vUserNeptune = addVertextUser(gNeptune, newEmail);
-        const vUserTinker = addVertextUser(gTinkerPop, newEmail);
+    describe('Add vertex into neptune & tinkerPop', () => {
+        it('Add vertex users ', async () => {
+            const newEmail = generateFakeEmail();
+            const vUserNeptune = await addVertextUser(gNeptune, newEmail);
+            const vUserTinker = await addVertextUser(gTinkerPop, newEmail);
+            
+            const userNeptune = await getUserByEmail(gNeptune, newEmail);
+            const userTinker = await getUserByEmail(gTinkerPop, newEmail);
+    
+            // check properties every result save user vertex
+            // check { key } exists in vUserNeptune, vUserTinker
+            let index = 0;
+            const keyVUserTinler = Object.keys(vUserTinker);
+            for (const [key, value] of Object.entries(vUserNeptune)) {
+                expect(key).toEqual(keyVUserTinler[index]) // check key
+                index ++;
+            }
+            // check { value, done } of vUserNeptune, vUserTinker
+            const keyVUserTinkerValue = Object.keys(vUserTinker.value);
+            index = 0;
+            for (const [key, value] of Object.entries(vUserNeptune.value)) {
+                expect(key).toEqual(keyVUserTinkerValue[index]) // check key of value
+                if (key === 'label') {
+                    expect(value).toEqual(vUserTinker.value[key]) // check value of value
+                }
+                index ++;
+            }
+            // find vertex by email
+            // check { key } exists in userNeptune, userTinker
+            index = 0;
+            const keyUserTinler = Object.keys(userTinker);
+            for (const [key, value] of Object.entries(userNeptune)) {
+                expect(key).toEqual(keyUserTinler[index]) // check key
+                index++;
+            }
+            // check { value, done } of vUserNeptune, vUserTinker
+            const keyUserTinkerValue = Object.keys(userTinker.value);
+            index = 0;
+            for (const [key, value] of Object.entries(userNeptune.value)) {
+                expect(key).not.toBeNull();
+                expect(keyUserTinkerValue[index]).not.toBeNull();
+                index ++;
+            }
+        })
+    
+        it('Add vertex roles', async () => {
+            const roles = ['super_admin', 'admin', 'teacher', 'student', 'MST', 'admin_MST', 'super_admin_MST'];
+            const indexRole = Math.floor(Math.random() * roles.length); // 0 -> length - 1
+            const rolesNeptune = await getListRoles(gNeptune);
+            const rolesTinker = await getListRoles(gTinkerPop);
+            const role = roles[indexRole];
+            
+            // check exists key of rolesNeptune
+            if (!rolesNeptune.includes(role)) {
+                const vRoleNeptune = await addVertextRole(gNeptune, role);
+                for (const [key, value] of Object.entries(vRoleNeptune)) {
+                    expect(key).not.toBeNull();
+                    if (key === 'properties') {
+                        expect(vRoleNeptune.value.properties).toBeUndefined();
+                    }
+                }      
+            }
+            if (!rolesTinker.includes(role)) {
+                const vRoleTinker = await addVertextRole(gTinkerPop, role);
+                for (const [key, value] of Object.entries(vRoleTinker)) {
+                    expect(key).not.toBeNull();
+                    if (key === 'properties') {
+                        expect(vRoleTinker.value.properties).toBeUndefined();
+                    }
+                }  
+            }
+    
+            const roleResult = await Promise.all([
+                getRoleByRole(gNeptune, role),
+                getRoleByRole(gTinkerPop, role)
+            ])
+            const [ roleNeptune, roleTinker ] = roleResult;            
 
-        const result = await Promise.all([vUserNeptune, vUserTinker]);
+             // check { key } exists in roleNeptune, roleTinker
+             let index = 0;
+             const keyRoleTinker = Object.keys(roleTinker);
+             for (const [key, value] of Object.entries(roleNeptune)) {
+                 expect(key).toEqual(keyRoleTinker[index]) // check key
+                 index ++;
+             }
 
-        console.log('--result add--');
-        console.log(result);
-        
-        const userNeptune = await getUserByEmail(gNeptune, newEmail);
-        const userTinker = await getUserByEmail(gTinkerPop, newEmail);
+            // check { value, done } of roleNeptune, roleTinker
+            const keyRoleTinkerValue = Object.keys(roleTinker.value);
+            index = 0;
+            for (const [key, value] of Object.entries(roleNeptune.value)) {
+                expect(key).toEqual(keyRoleTinkerValue[index]) // check key of value
+                if (key === 'label') {
+                    expect(value).toEqual(roleTinker.value[key]) // check value of value
+                }
+                index ++;
+            }
+        })
 
-        console.log('--result userNeptune--');
-        console.log(userNeptune);
-        console.log('--result userTinker--');
-        console.log(userTinker);
-        // save new vertex
-        expect(result[0].value.id).not.toBeNull();
-        expect(result[0].value.label).not.toBeNull();
-        expect(result[0].value.properties).toBeUndefined();
-
-        expect(result[1].value.id).not.toBeNull();
-        expect(result[1].value.label).not.toBeNull();
-        expect(result[1].value.properties).toBeUndefined();
-        // find vertex by email
-        expect(userNeptune.value).not.toBeNull();
-        expect(userTinker.value).not.toBeNull();
     })
 
-    it('Add vertex roles', async () => {
-        const roles = ['super_admin', 'admin', 'teacher', 'student', 'MST', 'admin_MST', 'super_admin_MST'];
-        const index = Math.floor(Math.random() * roles.length); // 0 -> length - 1
-        const rolesNeptune = await getListRoles(gNeptune);
-        const rolesTinker = await getListRoles(gTinkerPop);
-        const role = roles[index];
-        console.log(role);
-        console.log(rolesNeptune);
-        console.log(rolesTinker);
-        console.log(!rolesNeptune.includes(role));
-        console.log(!rolesTinker.includes(role));
-        
-        
-        
-        if (!rolesNeptune.includes(role)) {
-            const result = await addVertextRole(gNeptune, role);
-            expect(result.value.id).not.toBeNull();
-            expect(result.value.label).not.toBeNull();
-            expect(result.value.properties).toBeUndefined();
-        }
-        if (!rolesTinker.includes(role)) {
-            const result = await addVertextRole(gTinkerPop, role);
-            expect(result.value.id).not.toBeNull();
-            expect(result.value.label).not.toBeNull();
-            expect(result.value.properties).toBeUndefined();
-        }
+    describe('Associate users -> roles use neptune & tinkerPop', () => {
 
-        const roleResult = await Promise.all([
-            getRoleByRole(gNeptune, role),
-            getRoleByRole(gTinkerPop, role)
-        ])
-
-
-        // find vertex by email
-        expect(roleResult[0].value).not.toBeNull();
-        expect(roleResult[1].value).not.toBeNull();
     })
 
-    // it('Add associated vertex(users) path userHasAccountType', async () => {
-    //     const newEmail = generateFakeEmail();
-    //     const nameEdge = 'userHasAccountType';
-    //     // add vertex
-    //     await g.addV('users')
-    //         .property('DateOfBirth', '1997-01-02')
-    //         .property('Email', newEmail)
-    //         .property('CountryofResidence', 'Vietnam')
-    //         .property('ContactNumber', generatePhoneNumber())
-    //         .property('UserFirstName', 'Tri')
-    //         .property('LastName', 'Do')
-    //         .property('Gender', 'Male')
-    //         .property('ProfilePicture', true)
-    //         .property('ActiveStatus', 'Approved').next();
-
-    //     // associated vertex with vertex
-    //     const roleStudent = g.V().hasLabel('accounTypes').hasId('P');
-    //     const result = await g.V().hasLabel('users').has('Email', newEmail)
-    //         .addE(nameEdge)
-    //         .property('createdDate', '2019-09-09T00:00:00.000Z')
-    //         .property('effectiveDate', '2019-09-09T00:00:00.000Z')
-    //         .to(roleStudent).next();
-
-    //     // check result
-    //     const user = await g.V().hasLabel('users').has('Email', newEmail).next()
-    //     const edgeOfUser = await g.V().hasLabel('users').has('Email', newEmail)
-    //     .outE().as('ed').inV().select('ed').by(label).next()
-    //     console.log(user);
-    //     console.log('nameEdge');
-    //     console.log(edgeOfUser);
+    describe('Update properties of users use neptune & tinkerPop', () => {
         
-    //     expect(user.value).not.toBeNull();
-    //     expect(edgeOfUser.value).toEqual(nameEdge);
-    // })
+    })
+
+    describe('Update properties of edge users -> roles use neptune & tinkerPop', () => {
+        
+    })
+
+    describe('Delete properties of users use neptune & tinkerPop', () => {
+        
+    })
+
+    describe('Delete properties of edge users -> roles use neptune & tinkerPop', () => {
+        
+    })
+
+    describe('Delete edge users -> roles use neptune & tinkerPop', () => {
+        
+    })
 
 });
