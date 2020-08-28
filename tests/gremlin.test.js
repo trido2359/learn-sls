@@ -5,7 +5,8 @@ const {
     getListRoles,
     addVertextRole,
     getRoleByRole,
-    addUserToRole
+    addUserToRole,
+    getEdgeUserHasRole
 } = require('./repository');
 const { getConnect } = require('./connectDb')
 const gremlin = require('gremlin');
@@ -116,7 +117,51 @@ describe('Test gremlin', () => {
     })
 
     describe('Associate users -> roles use neptune & tinkerPop', () => {
+        it('Associate users -> roles', async () => {
+            const newEmail = generateFakeEmail();
+            const vUserNeptune = await addVertextUser(gNeptune, newEmail);
+            const vUserTinker = await addVertextUser(gTinkerPop, newEmail);
 
+            const rolesNeptune = await getListRoles(gNeptune);
+            const rolesTinker = await getListRoles(gTinkerPop);
+
+            // get roles between rolesNeptune and rolesTinker
+            const roles = rolesNeptune.length >= rolesTinker.length ?
+                rolesTinker.filter(role => {
+                    return rolesNeptune.includes(role);
+                }) : rolesNeptune.filter(role => {
+                    return rolesTinker.includes(role);
+                })
+            
+            if (roles.length === 0) {
+                return ;
+            }
+            const role = roles[0];
+
+            const userRole = await Promise.all([
+                addUserToRole(gNeptune, newEmail, role),
+                addUserToRole(gTinkerPop, newEmail, role)
+            ]) ;
+            const [ userRoleNeptune, userRoleTinker ] = userRole;
+
+            // check result after add userRole
+ 
+            let index = 0;
+            const keyUserRoleTinker = Object.keys(userRoleTinker);
+            for (const [key, value] of Object.entries(userRoleNeptune)) {
+                expect(key).toEqual(keyUserRoleTinker[index]) // check key
+                index ++;
+            }
+            // check Edge of userRoleNeptune, userRoleTinker
+            const edgeUserRoleNeptune = await getEdgeUserHasRole(gNeptune, newEmail, role);
+            const edgeUserRoleTinker = await getEdgeUserHasRole(gTinkerPop, newEmail, role);
+            
+            expect(edgeUserRoleNeptune).not.toBeNull();
+            expect(edgeUserRoleTinker).not.toBeNull();
+            expect(edgeUserRoleNeptune.value).not.toBeNull();
+            expect(edgeUserRoleTinker.value).not.toBeNull();
+            expect(edgeUserRoleTinker.value).toEqual(edgeUserRoleNeptune.value);
+        })
     })
 
     describe('Update properties of users use neptune & tinkerPop', () => {

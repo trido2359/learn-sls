@@ -1,4 +1,6 @@
 const { generatePhoneNumber } = require('./faker');
+const gremlin = require('gremlin');
+const { label } = gremlin.process.t;
 
 module.exports.addVertextUser = (g, email) => {
     return g.addV('users')
@@ -39,4 +41,10 @@ module.exports.addUserToRole = (g, email, role) => {
         .property('createdDate', '2019-09-09T00:00:00.000Z')
         .property('effectiveDate', '2019-09-09T00:00:00.000Z')
         .to(rolePromise).next();
+}
+
+module.exports.getEdgeUserHasRole = (g, email, role) => {
+    return g.V().hasLabel('users')
+    .has('Email', email)
+    .outE('userHasRole').as('a').inV().has('Role', role).select('a').by(label).next();
 }
