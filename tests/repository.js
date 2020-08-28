@@ -1,6 +1,8 @@
 const { generatePhoneNumber } = require('./faker');
 const gremlin = require('gremlin');
-const { label } = gremlin.process.t;
+const { id, label } = gremlin.process.t;
+const { out } = gremlin.process.statics;
+const __ = gremlin.process.statics;
 
 module.exports.addVertextUser = (g, email) => {
     return g.addV('users')
@@ -19,6 +21,13 @@ module.exports.getUserByEmail = (g, email) => {
     return g.V().hasLabel('users').has('Email', email).next();
 }
 
+module.exports.getUserById = (g, id) => {
+    return g.V().hasLabel('users').hasId(id).next();
+}
+
+module.exports.getListUserHaveNoRole = (g) => {
+    return g.V().hasLabel('roles').values('Role').toList();
+}
 
 module.exports.getListRoles = (g) => {
     return g.V().hasLabel('roles').values('Role').toList();
@@ -43,8 +52,13 @@ module.exports.addUserToRole = (g, email, role) => {
         .to(rolePromise).next();
 }
 
-module.exports.getEdgeUserHasRole = (g, email, role) => {
-    return g.V().hasLabel('users')
-    .has('Email', email)
-    .outE('userHasRole').as('a').inV().has('Role', role).select('a').by(label).next();
+module.exports.getEdgeUserHasRole = (g) => {
+    return g.V().hasLabel('users').where(out('userHasRole')).project('id').by(id).next();
+}
+module.exports.getEdgeUserHasNoRole = (g) => {
+    return g.V().hasLabel('users').where(__.not(out('userHasRole'))).project('id').by(id).next();
+}
+
+module.exports.deleteUserById = (g, idUser) => {
+    return g.V().hasLabel('users').hasId(idUser).drop().next();
 }

@@ -2,11 +2,14 @@ const { generateFakeEmail } = require('./faker');
 const {
     addVertextUser,
     getUserByEmail,
+    getUserById,
     getListRoles,
     addVertextRole,
     getRoleByRole,
     addUserToRole,
-    getEdgeUserHasRole
+    getEdgeUserHasRole,
+    getEdgeUserHasNoRole,
+    deleteUserById
 } = require('./repository');
 const { getConnect } = require('./connectDb')
 const gremlin = require('gremlin');
@@ -160,7 +163,6 @@ describe('Test gremlin', () => {
             expect(edgeUserRoleTinker).not.toBeNull();
             expect(edgeUserRoleNeptune.value).not.toBeNull();
             expect(edgeUserRoleTinker.value).not.toBeNull();
-            expect(edgeUserRoleTinker.value).toEqual(edgeUserRoleNeptune.value);
         })
     })
 
@@ -172,16 +174,49 @@ describe('Test gremlin', () => {
         
     })
 
-    describe('Delete properties of users use neptune & tinkerPop', () => {
+    describe('Delete users use gremlin', () => {
+
+        it('Delete 1 vertex has no role users use neptune & tinkerPop', async () => {
+            const userNeptune = await getEdgeUserHasNoRole(gNeptune); // return { id: '123', done: false }
+            const userTinker = await getEdgeUserHasNoRole(gTinkerPop);
+            console.log(userNeptune.value.get('id'));
+            console.log(userTinker);
+            
+            
+            const vDropNeptune = await deleteUserById(gNeptune, userNeptune.value.get('id')); // return  { value: Map { 'id' => 0 }, done: false }
+            const vDropTinker = await deleteUserById(gTinkerPop, userTinker.value.get('id'));
+            console.log(vDropNeptune);
+            console.log(vDropTinker);
+            
+            
+
+            const userNeptuneAfterDeteted = await getUserById(gNeptune, userNeptune.value.get('id')); // return { value: '123', done: true }
+            const userTinkerAfterDeteted = await getUserById(gTinkerPop, userTinker.value.get('id'));
+
+            expect(userNeptuneAfterDeteted.value).toBeNull();
+            expect(userTinkerAfterDeteted.value).toBeNull();
+
+            expect(vDropNeptune.value).toBeNull();
+            expect(vDropNeptune.done).not.toBeNull();
+            expect(vDropTinker.value).toBeNull();
+            expect(vDropTinker.done).not.toBeNull();
+        })
+
+        it('Delete properties of users use neptune & tinkerPop', () => {
         
+        })
+
+        it('Delete properties of edge users -> roles use neptune & tinkerPop', () => {
+        
+        })
+
+        it('Delete edge users -> roles use neptune & tinkerPop', () => {
+        
+        })
     })
 
-    describe('Delete properties of edge users -> roles use neptune & tinkerPop', () => {
-        
-    })
+    
 
-    describe('Delete edge users -> roles use neptune & tinkerPop', () => {
-        
-    })
+
 
 });
