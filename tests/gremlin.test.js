@@ -28,7 +28,9 @@ describe('Test gremlin', () => {
             const userNeptune = await getUserByEmail(gNeptune, newEmail);
             const userTinker = await getUserByEmail(gTinkerPop, newEmail);
     
-            // check properties every result save user vertex
+            // check number properties every object
+            expect(Object.keys(vUserNeptune).length).toEqual(Object.keys(vUserTinker).length)
+            expect(Object.keys(userNeptune).length).toEqual(Object.keys(userTinker).length)
             // check { key } exists in vUserNeptune, vUserTinker
             let index = 0;
             const keyVUserTinler = Object.keys(vUserTinker);
