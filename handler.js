@@ -212,7 +212,8 @@ module.exports.login = async (event, context) => {
 
 module.exports.hello = async (event, context) => {
     try {
-        console.log('hello');
+        console.log(process.env.ExtAttachmentsBucket);
+        
         return {
             statusCode: 200,
             body: 'Hello 123'
