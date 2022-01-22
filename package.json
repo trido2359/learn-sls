@@ -9,7 +9,7 @@
         "aws-sdk": "^2.739.0",
         "jsonwebtoken": "^7.1.9",
         "jwk-to-pem": "^1.2.6",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^3.1.1",
         "request": "^2.82.0",
         "uuid": "^8.3.0"
     },
